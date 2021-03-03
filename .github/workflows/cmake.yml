@@ -16,6 +16,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+        - os: ubuntu-latest
+          name: linux-x64
+        - os: macos-latest
+          name: macos-x64
+        - os: windows-latest
+          name: windows-x64
 
     steps:
     - uses: actions/checkout@v2
@@ -43,5 +50,5 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: hello-${{ runner.os }}.tar.gz
+        name: hello-${{ matrix.name }}.tar.gz
         path: build/hello-*.tar.gz
