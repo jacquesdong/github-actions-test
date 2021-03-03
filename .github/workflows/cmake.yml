@@ -7,7 +7,7 @@ env:
   BUILD_TYPE: RelWithDebInfo
 
 jobs:
-  unix:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -27,7 +27,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja
 
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -60,6 +60,43 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A ${{ matrix.type }}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE --target package
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: hello-${{ matrix.name }}.tar.gz
+        path: build/hello-*.tar.gz
+
+  cross:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm-linux-gnueabihf, aarch64-linux-gnu, mips64el-linux-gnuabi64]
+        include:
+        - arch: arm-linux-gnueabihf
+          name: linux-arm
+        - arch: aarch64-linux-gnu
+          name: linux-arm64
+        - arch: mips64el-linux-gnuabi64
+          name: linux-mips64
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Gcc
+      run: sudo apt-get -y install gcc-${{ matrix.arch }}
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/cmake/toolchains/${{ matrix.arch }}.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}/build
