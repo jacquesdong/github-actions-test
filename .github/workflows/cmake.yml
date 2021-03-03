@@ -12,7 +12,10 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -39,5 +42,6 @@ jobs:
       run: cmake --build . --config $BUILD_TYPE --target package
 
     - uses: actions/upload-artifact@v2
+      name: hello-${{ runner.os }}.tar.gz
       with:
         path: build/hello-*.tar.gz
