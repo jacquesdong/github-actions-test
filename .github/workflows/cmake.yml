@@ -42,6 +42,6 @@ jobs:
       run: cmake --build . --config $BUILD_TYPE --target package
 
     - uses: actions/upload-artifact@v2
-      name: hello-${{ runner.os }}.tar.gz
       with:
+        name: hello-${{ runner.os }}.tar.gz
         path: build/hello-*.tar.gz
