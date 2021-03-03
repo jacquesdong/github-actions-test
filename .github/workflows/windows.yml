@@ -15,12 +15,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [windows-latest]
+        type: [x64, Win32]
         include:
-        - os: ubuntu-latest
-          name: linux-x64
-        - os: macos-latest
-          name: macos-x64
+        - type: x64
+          name: windows-x64[VS2019]
+        - type: Win32
+          name: windows-x86[VS2019]
 
     steps:
     - uses: actions/checkout@v2
@@ -38,7 +39,7 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A ${{ matrix.type }}
 
     - name: Build
       working-directory: ${{github.workspace}}/build
