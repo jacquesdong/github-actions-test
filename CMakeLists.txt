@@ -38,6 +38,7 @@ endif()
 include(GNUInstallDirs)
 install(TARGETS
     hello
+    fib
     RUNTIME       DESTINATION   ${CMAKE_INSTALL_BINDIR}
     LIBRARY       DESTINATION   ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE       DESTINATION   ${CMAKE_INSTALL_LIBDIR}
