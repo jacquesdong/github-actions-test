@@ -39,6 +39,11 @@ jobs:
       shell: bash
       run: cmake --build . --config $BUILD_TYPE --target package
 
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: ctest -C $BUILD_TYPE --output-on-failure
+
     - uses: actions/upload-artifact@v2
       with:
         name: hello-${{ matrix.name }}.tar.gz
@@ -62,19 +67,24 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Check CMake
-      shell: bash
+      shell: cmd
       working-directory: ${{github.workspace}}/build
       run: cmake --version
 
     - name: Configure CMake
-      shell: bash
+      shell: cmd
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A ${{ matrix.type }}
 
     - name: Build
       working-directory: ${{github.workspace}}/build
-      shell: bash
+      shell: cmd
       run: cmake --build . --config $BUILD_TYPE --target package
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: cmd
+      run: ctest -C $BUILD_TYPE --output-on-failure
 
     - uses: actions/upload-artifact@v2
       with:
@@ -89,16 +99,19 @@ jobs:
         include:
         - arch: arm-linux-gnueabihf
           name: linux-arm
+          qemu: qemu-arm
         - arch: aarch64-linux-gnu
           name: linux-arm64
+          qemu: qemu-aarch64
         - arch: mips64el-linux-gnuabi64
           name: linux-mips64
+          qemu: qemu-mips64el
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Install Gcc
-      run: sudo apt-get update && sudo apt-get -y install gcc-${{ matrix.arch }} g++-${{ matrix.arch }}
+      run: sudo apt-get update && sudo apt-get -y install gcc-${{ matrix.arch }} g++-${{ matrix.arch }} qemu-arm
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -117,6 +130,11 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: cmake --build . --config $BUILD_TYPE --target package
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: ${{ matrix.qemu }} -L ${{ matrix.arch }} -E LD_LIBRARY_PATH=. ./Test
 
     - uses: actions/upload-artifact@v2
       with:
