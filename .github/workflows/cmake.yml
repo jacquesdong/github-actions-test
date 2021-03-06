@@ -111,7 +111,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Gcc
-      run: sudo apt-get update && sudo apt-get -y install gcc-${{ matrix.arch }} g++-${{ matrix.arch }} qemu-arm
+      run: sudo apt-get update && sudo apt-get -y install gcc-${{ matrix.arch }} g++-${{ matrix.arch }} qemu-user
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
