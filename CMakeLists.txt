@@ -24,6 +24,7 @@ if(BUILD_TESTING)
 
   add_library(Catch INTERFACE)
   target_include_directories(Catch INTERFACE ${CMAKE_SOURCE_DIR}/extern/catch2)
+  target_compile_features(Catch INTERFACE cxx_std_11)
 
   add_executable(Test tests/Test.cpp)
   target_link_libraries(Test
