@@ -47,6 +47,9 @@ jobs:
   
   windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
     strategy:
       matrix:
         type: [x64, Win32]
