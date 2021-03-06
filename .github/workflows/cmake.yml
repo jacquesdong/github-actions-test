@@ -25,23 +25,19 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Check CMake
-      shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake --version
 
     - name: Configure CMake
-      shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_VEROBSE_MAKEFILE=ON
 
     - name: Build
       working-directory: ${{github.workspace}}/build
-      shell: bash
       run: cmake --build . --config $BUILD_TYPE --target package
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      shell: bash
       run: ctest -C $BUILD_TYPE --output-on-failure
 
     - uses: actions/upload-artifact@v2
@@ -67,23 +63,19 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Check CMake
-      shell: cmd
       working-directory: ${{github.workspace}}/build
       run: cmake --version
 
     - name: Configure CMake
-      shell: cmd
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A ${{ matrix.type }}
 
     - name: Build
       working-directory: ${{github.workspace}}/build
-      shell: cmd
       run: cmake --build . --config $BUILD_TYPE --target package
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      shell: cmd
       run: ctest -C $BUILD_TYPE --output-on-failure
 
     - uses: actions/upload-artifact@v2
@@ -117,23 +109,19 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Check CMake
-      shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake --version
 
     - name: Configure CMake
-      shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/cmake/toolchains/${{ matrix.arch }}.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}/build
-      shell: bash
       run: cmake --build . --config $BUILD_TYPE --target package
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      shell: bash
       run: ${{ matrix.qemu }} -L ${{ matrix.arch }} -E LD_LIBRARY_PATH=. ./Test
 
     - uses: actions/upload-artifact@v2
