@@ -21,6 +21,9 @@ jobs:
           name: macos-x64
 
     steps:
+    - name: Check Home
+      run: find $HOME
+
     - uses: actions/checkout@v2
 
     - name: Create Build Environment
@@ -43,10 +46,19 @@ jobs:
       run: ctest -C $BUILD_TYPE --output-on-failure
 
     - name: Upload
-      run: echo $KEY | rsync -av -e "$ARG" build/hello-*.tar.gz depoy@$HOST:$DST
+      run: |
+        set -e
+        mkdir -p "$HOME/.ssh"
+        echo "$KEY" >"$HOME/.ssh/key"
+        chmod 600 "$HOME/.ssh/key"
+        cleanup(){
+          rm -rfv $HOME/.ssh
+        }
+        trap cleanup INT QUIT
+        rsync -av -e "$ARG" build/hello-*.tar.gz depoy@$HOST:$DST
       env:
         HOST: ${{secrets.DEPLOY_SSH_HOST}}
-        ARG: ssh -p 10022 -i /dev/stdin -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         KEY: ${{secrets.DEPLOY_SSH_KEY}}
         DST: ${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
+        ARG: ssh -p 10022 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
   
