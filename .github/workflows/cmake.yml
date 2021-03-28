@@ -64,9 +64,9 @@ jobs:
     - name: Upload
       run: |
         if [ "${{runner.os}}" = "Windows" ]; then
-          rsync -av -e "ssh -p $SSH_INIT_PORT $SSH_INIT_ARGS" build/hello-*.tar.gz $SSH_FILE_DEST
+          scp -v -P $SSH_INIT_PORT $SSH_INIT_ARGS build/hello-*.tar.gz $SSH_FILE_DEST
         else
-          scp -P $SSH_INIT_PORT $SSH_INIT_ARGS build/hello-*.tar.gz $SSH_FILE_DEST
+          rsync -av -e "ssh -p $SSH_INIT_PORT $SSH_INIT_ARGS" build/hello-*.tar.gz $SSH_FILE_DEST
         fi
       shell: bash
       env:
