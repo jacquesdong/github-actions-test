@@ -19,7 +19,8 @@ jobs:
           name: linux-x64
         - os: macos-latest
           name: macos-x64
-
+        - os: windows-latest
+          name: windows-x64
     steps:
     - name: Check Home
       shell: bash
@@ -61,8 +62,15 @@ jobs:
         ssh-add - <<< "${{ secrets.DEPLOY_SSH_KEY }}"
 
     - name: Upload
-      run: rsync -av -e "$SSH_INIT_ARGS" build/hello-*.tar.gz deploy@${{secrets.DEPLOY_SSH_HOST}}:${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
+      run: |
+        if [ "${{runner.os}} = "Windows" ]; then
+          rsync -av -e "ssh -p $SSH_INIT_PORT $SSH_INIT_ARGS" build/hello-*.tar.gz $SSH_FILE_DEST
+        else
+          scp -P SSH_INIT_PORT $SSH_INIT_ARGS build/hello-*.tar.gz $SSH_FILE_DEST
+        fi
       shell: bash
       env:
-        SSH_INIT_ARGS: ssh -p 10022 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+        SSH_INIT_PORT: 10022
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        SSH_INIT_ARGS: -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+        SSH_FILE_DEST: deploy@${{secrets.DEPLOY_SSH_HOST}}:${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
