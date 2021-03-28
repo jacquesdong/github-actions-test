@@ -48,6 +48,7 @@ jobs:
     - name: Upload
       run: |
         set -e
+        set -x
         mkdir -p "$HOME/.ssh"
         echo "$KEY" >"$HOME/.ssh/key"
         chmod 600 "$HOME/.ssh/key"
