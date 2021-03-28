@@ -22,7 +22,8 @@ jobs:
 
     steps:
     - name: Check Home
-      run: test -d $HOME/.ssh && find $HOME/.ssh
+      run: find $HOME/.ssh || echo "$HOME/.ssh not exit"
+
     - uses: actions/checkout@v2
 
     - name: Create Build Environment
