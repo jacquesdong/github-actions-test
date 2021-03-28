@@ -22,8 +22,7 @@ jobs:
 
     steps:
     - name: Check Home
-      run: find $HOME/.ssh
-
+      run: test -d $HOME/.ssh && find $HOME/.ssh
     - uses: actions/checkout@v2
 
     - name: Create Build Environment
