@@ -39,6 +39,9 @@ jobs:
       shell: bash
       run: cmake -E make_directory ${{github.workspace}}/build
 
+    - name: Check PWD
+      run: pwd
+
     - name: Check CMake
       working-directory: ${{github.workspace}}/build
       shell: bash
