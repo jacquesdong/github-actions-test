@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
         - os: ubuntu-latest
           name: linux-x64
@@ -25,6 +25,13 @@ jobs:
       run: find $HOME/.ssh || echo "$HOME/.ssh not exit"
 
     - uses: actions/checkout@v2
+
+    - name: Setup SSH
+      env:
+        SSH_AUTH_SOCK: /run/shm/ssh_agent.sock
+      run: |
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{ secrets.DEPLOY_SSH_KEY }}"
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -46,20 +53,7 @@ jobs:
       run: ctest -C $BUILD_TYPE --output-on-failure
 
     - name: Upload
-      run: |
-        set -e
-        set -x
-        mkdir -p "$HOME/.ssh"
-        echo "$KEY" >"$HOME/.ssh/id_rsa"
-        chmod 600 "$HOME/.ssh/id_rsa"
-        cleanup(){
-          rm -rfv $HOME/.ssh
-        }
-        trap cleanup INT QUIT
-        rsync -av -e "$ARG" build/hello-*.tar.gz deploy@$HOST:$DST
+      run: rsync -av -e "$SSH_INIT_ARGS" build/hello-*.tar.gz deploy@${{secrets.DEPLOY_SSH_HOST}}:${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
       env:
-        HOST: ${{secrets.DEPLOY_SSH_HOST}}
-        KEY: ${{secrets.DEPLOY_SSH_KEY}}
-        DST: ${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
-        ARG: ssh -p 10022 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-  
+        SSH_INIT_ARGS: ssh -p 10022 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+        SSH_AUTH_SOCK: /run/shm/ssh_agent.sock
