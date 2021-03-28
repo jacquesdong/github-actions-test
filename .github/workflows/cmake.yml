@@ -22,6 +22,7 @@ jobs:
 
     steps:
     - name: Check Home
+      shell: bash
       run: find $HOME/.ssh || echo "$HOME/.ssh not exit"
 
     - uses: actions/checkout@v2
@@ -29,6 +30,7 @@ jobs:
     - name: Setup SSH
       env:
         SSH_AUTH_SOCK: /run/shm/ssh_agent.sock
+      shell: bash
       run: |
         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
         ssh-add - <<< "${{ secrets.DEPLOY_SSH_KEY }}"
@@ -54,6 +56,7 @@ jobs:
 
     - name: Upload
       run: rsync -av -e "$SSH_INIT_ARGS" build/hello-*.tar.gz deploy@${{secrets.DEPLOY_SSH_HOST}}:${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
+      shell: bash
       env:
         SSH_INIT_ARGS: ssh -p 10022 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         SSH_AUTH_SOCK: /run/shm/ssh_agent.sock
