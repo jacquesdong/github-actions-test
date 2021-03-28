@@ -46,7 +46,7 @@ jobs:
       run: echo $KEY | rsync -av -e "$ARG" build/hello-*.tar.gz depoy@$HOST:$DST
       env:
         HOST: ${{secrets.DEPLOY_SSH_HOST}}
-        ARG: ssh -p 22 -i /dev/stdin -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+        ARG: ssh -p 10022 -i /dev/stdin -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         KEY: ${{secrets.DEPLOY_SSH_KEY}}
         DST: ${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
   
