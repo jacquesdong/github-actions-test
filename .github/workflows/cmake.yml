@@ -1,6 +1,8 @@
 name: Build
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -40,94 +42,14 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ctest -C $BUILD_TYPE --output-on-failure
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: hello-${{ matrix.name }}.tar.gz
-        path: build/hello-*.tar.gz
+    - name: Upload
+      uses: up9cloud/action-rsync@v1.3
+      env:
+        HOST: ${{secrets.DEPLOY_SSH_HOST}}
+        PORT: 10022
+        USER: deploy
+        KEY: ${{secrets.DEPLOY_SSH_KEY}}
+        SOURCE: build/hello-*.tar.gz
+        TARGET: /srv/docker/bhxz/var/www/archives/FixCommA/hello-${{ matrix.name }}.tar.gz
+        ARGS: -av
   
-  windows:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        type: [x64, Win32]
-        include:
-        - type: x64
-          name: windows-x64[VS2019]
-        - type: Win32
-          name: windows-x86[VS2019]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Create Build Environment
-      run: cmake -E make_directory ${{github.workspace}}/build
-
-    - name: Check CMake
-      working-directory: ${{github.workspace}}/build
-      run: cmake --version
-
-    - name: Configure CMake
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A ${{ matrix.type }}
-
-    - name: Build
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: cmake --build . --config $BUILD_TYPE --target package
-
-    - name: Test
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: ctest -C $BUILD_TYPE --output-on-failure
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: hello-${{ matrix.name }}.tar.gz
-        path: build/hello-*.tar.gz
-
-  cross-compiling:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [arm-linux-gnueabihf, aarch64-linux-gnu, mips64el-linux-gnuabi64]
-        include:
-        - arch: arm-linux-gnueabihf
-          name: linux-arm
-          qemu: qemu-arm
-        - arch: aarch64-linux-gnu
-          name: linux-arm64
-          qemu: qemu-aarch64
-        - arch: mips64el-linux-gnuabi64
-          name: linux-mips64
-          qemu: qemu-mips64el
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Gcc
-      run: sudo apt-get update && sudo apt-get -y install gcc-${{ matrix.arch }} g++-${{ matrix.arch }} qemu-user
-
-    - name: Create Build Environment
-      run: cmake -E make_directory ${{github.workspace}}/build
-
-    - name: Check CMake
-      working-directory: ${{github.workspace}}/build
-      run: cmake --version
-
-    - name: Configure CMake
-      working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/cmake/toolchains/${{ matrix.arch }}.cmake
-
-    - name: Build
-      working-directory: ${{github.workspace}}/build
-      run: cmake --build . --config $BUILD_TYPE --target package
-
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: ${{ matrix.qemu }} -L /usr/${{ matrix.arch }} -E LD_LIBRARY_PATH=. ./Test
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: hello-${{ matrix.name }}.tar.gz
-        path: build/hello-*.tar.gz
