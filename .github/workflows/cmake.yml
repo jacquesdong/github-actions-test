@@ -43,7 +43,7 @@ jobs:
       run: ctest -C $BUILD_TYPE --output-on-failure
 
     - name: Upload
-      run: cat $KEY | rsync -av -e "$ARG" build/hello-*.tar.gz depoy@$HOST:$DST
+      run: echo $KEY | rsync -av -e "$ARG" build/hello-*.tar.gz depoy@$HOST:$DST
       env:
         HOST: ${{secrets.DEPLOY_SSH_HOST}}
         ARG: ssh -p 22 -i /dev/stdin -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
