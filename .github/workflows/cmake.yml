@@ -40,6 +40,8 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Check CMake
+      working-directory: ${{github.workspace}}/build
+      shell: bash
       run: cmake --version
 
     - name: Configure CMake
