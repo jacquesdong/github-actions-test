@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{matrix.os}}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -43,13 +43,10 @@ jobs:
       run: ctest -C $BUILD_TYPE --output-on-failure
 
     - name: Upload
-      uses: up9cloud/action-rsync@v1.3
+      run: cat $KEY | rsync -av -e "$ARG" build/hello-*.tar.gz depoy@$HOST:$DST
       env:
         HOST: ${{secrets.DEPLOY_SSH_HOST}}
-        PORT: 10022
-        USER: deploy
+        ARG: ssh -p 22 -i /dev/stdin -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
         KEY: ${{secrets.DEPLOY_SSH_KEY}}
-        SOURCE: build/hello-*.tar.gz
-        TARGET: /srv/docker/bhxz/var/www/archives/FixCommA/hello-${{ matrix.name }}.tar.gz
-        ARGS: -av
+        DST: ${{secrets.DEPLOY_SSH_PATH}}/var/www/archives/FixCommA/hello-${{matrix.name}}.tar.gz
   
