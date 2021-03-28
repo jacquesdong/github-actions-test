@@ -28,7 +28,6 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Create Build Environment
-      shell: bash
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Check PWD
@@ -36,7 +35,6 @@ jobs:
 
     - name: Check CMake
       working-directory: ${{github.workspace}}/build
-      shell: bash
       run: cmake --version
 
     - name: Configure CMake
