@@ -29,7 +29,7 @@ jobs:
 
     - name: Setup SSH
       env:
-        SSH_AUTH_SOCK: /run/shm/ssh_agent.sock
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       shell: bash
       run: |
         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
@@ -59,4 +59,4 @@ jobs:
       shell: bash
       env:
         SSH_INIT_ARGS: ssh -p 10022 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-        SSH_AUTH_SOCK: /run/shm/ssh_agent.sock
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
